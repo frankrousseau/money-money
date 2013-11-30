@@ -350,13 +350,25 @@ window.require.register("router", function(exports, require, module) {
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var AppView, BaseView, average, averageDay, getDayGraphData, getDayGraphLabels, printGraph, request, _ref,
+  var AppView, BaseView, average, averageDay, getDayGraphData, getDayGraphLabels, printDonut, printGraph, request, sum, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   BaseView = require('../lib/base_view');
 
   request = require('../lib/request');
+
+  sum = function(data) {
+    var amount, i, total, _i, _len;
+    i = 0;
+    total = 0;
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      amount = data[_i];
+      total += amount.value;
+      i++;
+    }
+    return total;
+  };
 
   average = function(data) {
     var amount, i, total, _i, _len;
@@ -367,7 +379,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       total += amount.value;
       i++;
     }
-    return total / i;
+    return (total / i).toFixed(2);
   };
 
   averageDay = function(data) {
@@ -379,7 +391,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       total += amount;
       i++;
     }
-    return total / i;
+    return (total / i).toFixed(2);
   };
 
   getDayGraphLabels = function(data) {
@@ -416,25 +428,45 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.afterRender = function() {
       request.get('gain/month', function(err, data) {
-        return $("#average-gain-month").html(average(data));
+        var income;
+        $("#average-gain-month").html(average(data));
+        income = sum(data);
+        return request.get('loss/month', function(err, data) {
+          var expense;
+          $("#average-loss-month").html(average(data));
+          expense = sum(data);
+          console.log(income);
+          console.log(expense);
+          return printDonut(income, -1 * expense);
+        });
       });
       request.get('gain/day', function(err, data) {
         return $("#average-gain-day").html(averageDay(data));
       });
-      request.get('loss/month', function(err, data) {
-        return $("#average-loss-month").html(average(data));
-      });
       return request.get('tasks', function(err, data2) {
+        var amount, day, totalTasks;
         $("#average-task-day").html(averageDay(data2));
+        totalTasks = 0;
+        for (day in data2) {
+          amount = data2[day];
+          totalTasks += amount;
+        }
         data2 = _.map(data2, function(num) {
           return num * 10;
         });
         return request.get('loss/day', function(err, data) {
+          var totalLoss;
           $("#average-loss-day").html(averageDay(data));
           data = _.map(data, function(num) {
             return num * -1;
           });
-          return printGraph("graph-loss", data, data2);
+          printGraph("graph-loss", data, data2);
+          totalLoss = 0;
+          for (day in data) {
+            amount = data[day];
+            totalLoss += amount;
+          }
+          return $("#average-task-cost").html((totalLoss / totalTasks).toFixed(2));
         });
       });
     };
@@ -442,6 +474,31 @@ window.require.register("views/app_view", function(exports, require, module) {
     return AppView;
 
   })(BaseView);
+
+  printDonut = function(income, expense) {
+    var chart, doughnutData, myDoughnut;
+    doughnutData = [
+      {
+        value: income,
+        color: "#F7464A"
+      }, {
+        value: expense,
+        color: "#46BFBD"
+      }, {
+        value: 200866,
+        color: "#FDB45C"
+      }
+    ];
+    chart = new Chart(document.getElementById("donut").getContext("2d"));
+    myDoughnut = chart.Doughnut(doughnutData);
+    return $("#compare-select").on('change', function(event) {
+      var data;
+      data = doughnutData;
+      data[2].value = $("#compare-select").val();
+      console.log($("#compare-select").val());
+      return myDoughnut = chart.Doughnut(data);
+    });
+  };
 
   printGraph = function(graphId, data1, data2) {
     var chartLoss, ctx, graphData, graphData2, graphLabels, points;
@@ -454,7 +511,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       datasets: [
         {
           fillColor: "rgba(220,220,220,0.5)",
-          strokeColor: "rgba(220,220,220,1)",
+          strokeColor: "#46BFBD",
           pointColor: "rgba(220,220,220,1)",
           pointStrokeColor: "#fff",
           data: graphData
@@ -483,7 +540,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="content"><h1>Money Money</h1><h2 id="average-gain-month">loading...</h2><h2 id="average-gain-day">loading...</h2><h2 id="average-loss-month">loading...</h2><h2 id="average-loss-day">loading...</h2><canvas id="graph-loss" width="1000" height="400"></canvas></div>');
+  buf.push('<div id="content"><div class="step-intro"><div class="prez"><img src="logo.png"/><h1>Finance Dataviz</h1><h2>Understand your money stream to get more income</h2><p>Facts: Do you know that you gain 20344 times less money than Michael\nSchumarrer ?</p><p>Facts: Do you know that you could pay 42 Kazhak doctors with your \nincome ?</p></div><div class="value clearfix"><h3 id="average-gain-month">loading...</h3><h2>Income by month</h2></div><div class="value clearfix"><h3 id="average-gain-day">loading...</h3><h2>Income by day</h2></div><div class="value clearfix"><h3 id="average-loss-month">loading...</h3><h2>Expense by month</h2></div><div class="value clearfix"><h3 id="average-loss-day">loading...</h3><h2>Expense by day</h2></div><div class="clearfix"></div></div><div class="step-productivity"><h2>Does productivity costs you money?</h2><canvas id="graph-loss" width="1200" height="400"></canvas><p>Each task you achieve costs you:&nbsp;<span id="average-task-cost"></span>&nbsp;euros</p></div><div class="step-compare"><h2>How do you compare to others?</h2><select id="compare-select"><option value="14626866">Schumacher annual income</option><option value="5000">Mark Zuckerberg last home</option><option value="200">Monthly salary of a doctor in Pakistan</option></select><canvas id="donut" width="600" height="400"></canvas></div></div>');
   }
   return buf.join("");
   };

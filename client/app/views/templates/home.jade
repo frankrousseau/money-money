@@ -1,8 +1,43 @@
 #content
-  h1 Money Money
-  h2#average-gain-month loading...
-  h2#average-gain-day loading...
-  h2#average-loss-month loading...
-  h2#average-loss-day loading...
+  .step-intro
+      .prez
+          img(src="logo.png")
+          h1 Finance Dataviz
+          h2 Understand your money stream to get more income
+          p.
+            Facts: Do you know that you gain 20344 times less money than Michael
+            Schumarrer ?
+          p.
+            Facts: Do you know that you could pay 42 Kazhak doctors with your 
+            income ?
+      .value.clearfix
+          h3#average-gain-month loading...
+          h2 Income by month
+      .value.clearfix
+          h3#average-gain-day loading...
+          h2 Income by day
+      .value.clearfix
+          h3#average-loss-month loading...
+          h2 Expense by month
+      .value.clearfix
+          h3#average-loss-day loading...
+          h2 Expense by day
+      .clearfix
    
-  canvas#graph-loss(width="1000", height="400")
+   .step-productivity
+      h2 Does productivity costs you money?
+      canvas#graph-loss(width="1200", height="400")
+
+      p
+        | Each task you achieve costs you:&nbsp;
+        span#average-task-cost
+        | &nbsp;euros
+        
+
+   .step-compare
+      h2 How do you compare to others?
+      select#compare-select
+          option(value="14626866") Schumacher annual income
+          option(value="5000") Mark Zuckerberg last home
+          option(value="200") Monthly salary of a doctor in Pakistan
+      canvas#donut(width="600", height="400")
