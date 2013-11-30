@@ -3,6 +3,7 @@
 index = require './index'
 
 module.exports =
-    'foo':
+    'stats':
         get: index.main
-
+    'tasks':
+        get: index.tasks

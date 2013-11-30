@@ -83,7 +83,6 @@ window.require.register("application", function(exports, require, module) {
   module.exports = {
     initialize: function() {
       var Router;
-
       Router = require('router');
       this.router = new Router();
       Backbone.history.start();
@@ -109,7 +108,6 @@ window.require.register("lib/app_helpers", function(exports, require, module) {
   (function() {
     return (function() {
       var console, dummy, method, methods, _results;
-
       console = window.console = window.console || {};
       method = void 0;
       dummy = function() {};
@@ -144,7 +142,6 @@ window.require.register("lib/base_view", function(exports, require, module) {
 
     BaseView.prototype.getRenderData = function() {
       var _ref1;
-
       return {
         model: (_ref1 = this.model) != null ? _ref1.toJSON() : void 0
       };
@@ -186,7 +183,8 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     function ViewCollection() {
       this.removeItem = __bind(this.removeItem, this);
-      this.addItem = __bind(this.addItem, this);    _ref = ViewCollection.__super__.constructor.apply(this, arguments);
+      this.addItem = __bind(this.addItem, this);
+      _ref = ViewCollection.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
@@ -212,7 +210,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.initialize = function() {
       var collectionEl;
-
       ViewCollection.__super__.initialize.apply(this, arguments);
       this.views = {};
       this.listenTo(this.collection, "reset", this.onReset);
@@ -225,7 +222,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.render = function() {
       var id, view, _ref1;
-
       _ref1 = this.views;
       for (id in _ref1) {
         view = _ref1[id];
@@ -236,7 +232,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.afterRender = function() {
       var id, view, _ref1;
-
       this.$collectionEl = $(this.collectionEl);
       _ref1 = this.views;
       for (id in _ref1) {
@@ -254,7 +249,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.onReset = function(newcollection) {
       var id, view, _ref1;
-
       _ref1 = this.views;
       for (id in _ref1) {
         view = _ref1[id];
@@ -265,7 +259,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.addItem = function(model) {
       var options, view;
-
       options = _.extend({}, {
         model: model
       }, this.itemViewOptions(model));
@@ -307,7 +300,6 @@ window.require.register("router", function(exports, require, module) {
 
     Router.prototype.main = function() {
       var mainView;
-
       mainView = new AppView();
       return mainView.render();
     };
@@ -351,7 +343,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="content"><h1>Cozy template</h1><h2>Welcome</h2><ul><li> <a href="https://github.com/mycozycloud/cozy-setup/wiki">Documentation</a></li><li> <a href="https://github.com/mycozycloud/cozy-setup/wiki/Getting-started">Getting Started</a></li><li> <a href="https://github.com/mycozycloud">Github</a></li></ul></div>');
+  buf.push('<div id="content"><h1>Cozy template</h1><h2>Welcome</h2><ul><li><a href="http://cozy.io/">Documentation</a></li><li><a href="http://cozy.io/hack/getting-started/">Getting Started</a></li><li><a href="https://github.com/mycozycloud">Github</a></li></ul></div>');
   }
   return buf.join("");
   };
