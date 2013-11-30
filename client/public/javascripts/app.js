@@ -170,6 +170,46 @@ window.require.register("lib/base_view", function(exports, require, module) {
   })(Backbone.View);
   
 });
+window.require.register("lib/request", function(exports, require, module) {
+  exports.request = function(type, url, data, callback) {
+    return $.ajax({
+      type: type,
+      url: url,
+      data: data != null ? JSON.stringify(data) : null,
+      contentType: "application/json",
+      dataType: "json",
+      success: function(data) {
+        if (callback != null) {
+          return callback(null, data);
+        }
+      },
+      error: function(data) {
+        if ((data != null) && (data.msg != null) && (callback != null)) {
+          return callback(new Error(data.msg));
+        } else if (callback != null) {
+          return callback(new Error("Server error occured"));
+        }
+      }
+    });
+  };
+
+  exports.get = function(url, callback) {
+    return exports.request("GET", url, null, callback);
+  };
+
+  exports.post = function(url, data, callback) {
+    return exports.request("POST", url, data, callback);
+  };
+
+  exports.put = function(url, data, callback) {
+    return exports.request("PUT", url, data, callback);
+  };
+
+  exports.del = function(url, callback) {
+    return exports.request("DELETE", url, null, callback);
+  };
+  
+});
 window.require.register("lib/view_collection", function(exports, require, module) {
   var BaseView, ViewCollection, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -310,11 +350,57 @@ window.require.register("router", function(exports, require, module) {
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var AppView, BaseView, _ref,
+  var AppView, BaseView, average, averageDay, getDayGraphData, getDayGraphLabels, printGraph, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   BaseView = require('../lib/base_view');
+
+  request = require('../lib/request');
+
+  average = function(data) {
+    var amount, i, total, _i, _len;
+    i = 0;
+    total = 0;
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      amount = data[_i];
+      total += amount.value;
+      i++;
+    }
+    return total / i;
+  };
+
+  averageDay = function(data) {
+    var amount, day, i, total;
+    i = 0;
+    total = 0;
+    for (day in data) {
+      amount = data[day];
+      total += amount;
+      i++;
+    }
+    return total / i;
+  };
+
+  getDayGraphLabels = function(data) {
+    var amount, day, result;
+    result = [];
+    for (day in data) {
+      amount = data[day];
+      result.push("d");
+    }
+    return result;
+  };
+
+  getDayGraphData = function(data) {
+    var amount, day, result;
+    result = [];
+    for (day in data) {
+      amount = data[day];
+      result.push(amount);
+    }
+    return result;
+  };
 
   module.exports = AppView = (function(_super) {
     __extends(AppView, _super);
@@ -329,12 +415,66 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.template = require('./templates/home');
 
     AppView.prototype.afterRender = function() {
-      return console.log("write more code here !");
+      request.get('gain/month', function(err, data) {
+        return $("#average-gain-month").html(average(data));
+      });
+      request.get('gain/day', function(err, data) {
+        return $("#average-gain-day").html(averageDay(data));
+      });
+      request.get('loss/month', function(err, data) {
+        return $("#average-loss-month").html(average(data));
+      });
+      return request.get('tasks', function(err, data2) {
+        $("#average-task-day").html(averageDay(data2));
+        data2 = _.map(data2, function(num) {
+          return num * 10;
+        });
+        return request.get('loss/day', function(err, data) {
+          $("#average-loss-day").html(averageDay(data));
+          data = _.map(data, function(num) {
+            return num * -1;
+          });
+          return printGraph("graph-loss", data, data2);
+        });
+      });
     };
 
     return AppView;
 
   })(BaseView);
+
+  printGraph = function(graphId, data1, data2) {
+    var chartLoss, ctx, graphData, graphData2, graphLabels, points;
+    ctx = $("#" + graphId).get(0).getContext("2d");
+    graphData = getDayGraphData(data1);
+    graphLabels = getDayGraphLabels(data1);
+    graphData2 = getDayGraphData(data2);
+    points = {
+      labels: graphLabels,
+      datasets: [
+        {
+          fillColor: "rgba(220,220,220,0.5)",
+          strokeColor: "rgba(220,220,220,1)",
+          pointColor: "rgba(220,220,220,1)",
+          pointStrokeColor: "#fff",
+          data: graphData
+        }, {
+          fillColor: "rgba(151,187,205,0.5)",
+          strokeColor: "rgba(151,187,205,1)",
+          pointColor: "rgba(151,187,205,1)",
+          pointStrokeColor: "#fff",
+          data: graphLabels
+        }, {
+          fillColor: "rgba(220,220,220,0.5)",
+          strokeColor: "rgba(187,151,205,1)",
+          pointColor: "rgba(151,187,205,1)",
+          pointStrokeColor: "#fff",
+          data: graphData2
+        }
+      ]
+    };
+    return chartLoss = new Chart(ctx).Line(points);
+  };
   
 });
 window.require.register("views/templates/home", function(exports, require, module) {
@@ -343,7 +483,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="content"><h1>Cozy template</h1><h2>Welcome</h2><ul><li><a href="http://cozy.io/">Documentation</a></li><li><a href="http://cozy.io/hack/getting-started/">Getting Started</a></li><li><a href="https://github.com/mycozycloud">Github</a></li></ul></div>');
+  buf.push('<div id="content"><h1>Money Money</h1><h2 id="average-gain-month">loading...</h2><h2 id="average-gain-day">loading...</h2><h2 id="average-loss-month">loading...</h2><h2 id="average-loss-day">loading...</h2><canvas id="graph-loss" width="1000" height="400"></canvas></div>');
   }
   return buf.join("");
   };

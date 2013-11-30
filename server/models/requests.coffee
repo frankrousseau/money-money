@@ -20,7 +20,7 @@ module.exports =
         amountGainByDay:
             map: (doc) ->
                 if doc.date? and doc.amount > 0
-                    date = new Date doc.completionDate
+                    date = new Date doc.date
                     yyyy = date.getFullYear().toString()
                     mm = (date.getMonth() + 1).toString()
                     mm = "0" + mm if mm.length is 1
@@ -35,7 +35,7 @@ module.exports =
         amountGainByMonth:
             map: (doc) ->
                 if doc.date? and doc.amount > 0
-                    date = new Date doc.completionDate
+                    date = new Date doc.date
                     yyyy = date.getFullYear().toString()
                     mm = (date.getMonth() + 1).toString()
                     mm = "0" + mm if mm.length is 1
@@ -47,7 +47,7 @@ module.exports =
 
         amountLossByDay:
             map: (doc) ->
-                if doc.date? and doc.amount > 0
+                if doc.date? and 0 > doc.amount
                     date = new Date doc.date
                     yyyy = date.getFullYear().toString()
                     mm = (date.getMonth() + 1).toString()
@@ -62,7 +62,7 @@ module.exports =
 
         amountLossByMonth:
             map: (doc) ->
-                if doc.date? and doc.amount > 0
+                if doc.date? and 0 > doc.amount
                     date = new Date doc.date
                     yyyy = date.getFullYear().toString()
                     mm = (date.getMonth() + 1).toString()
