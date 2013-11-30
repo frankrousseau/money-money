@@ -32,6 +32,7 @@
     },
     "Task": {
       "description": "To build stats on your tasks."
+    }
   },
   "cozy-displayName": "Template"
 }
