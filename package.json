@@ -28,7 +28,7 @@
     "start": "coffee server.coffee"
   },
   "cozy-permissions": {
-    "BankAccount": {
+    "BankOperation": {
       "description": "To build stats on your bank operations."
     },
     "Task": {
