@@ -26,6 +26,12 @@
     "test": "cake tests",
     "start": "coffee server.coffee"
   },
-  "cozy-permissions": {},
+  "cozy-permissions": {
+    "BankAccount": {
+      "description": "To build stats on your bank operations."
+    },
+    "Task": {
+      "description": "To build stats on your tasks."
+  },
   "cozy-displayName": "Template"
 }
