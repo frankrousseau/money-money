@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mycozycloud/cozy-template.git"
+    "url": "https://github.com/frankrousseau/money-money.git"
   },
   "main": "server.coffee",
   "dependencies": {
